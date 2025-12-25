@@ -5,9 +5,10 @@ namespace habit_tracker
 {
     class Program
     {
+        static string connectionString = @"Data Source=habit_tracker.db;";
+
         static void Main(string[] args)
         {
-            string connectionString = @"Data Source=habit_tracker.db;";
             using (var connection = new SqliteConnection(connectionString))
             {
                 connection.Open();
@@ -23,6 +24,8 @@ namespace habit_tracker
 
                 connection.Close();
             }
+
+            GetUserInput();
         }
 
 
@@ -39,10 +42,68 @@ namespace habit_tracker
                 Console.WriteLine("Type 2 to Insert Record.");
                 Console.WriteLine("Type 3 to Delete Record.");
                 Console.WriteLine("Type 4 to Update Record");
-                Console.Write("Select an option: ");
+                Console.Write("---------------------------------------------\n");
 
-
+                string command = Console.ReadLine();
+                switch (command)
+                {
+                    case "0":
+                        Console.WriteLine("\nGoodbye\n");
+                        closeApp = true;
+                        break;
+                    // case "1":
+                    //     GetAllRecords();
+                    //     break;
+                    case "2":
+                        Insert();
+                        break;
+                        // case "3":
+                        //     Delete();
+                        //     break;
+                        // case "4":
+                        //     Update();
+                        //     break;
+                        // default:
+                        //     Console.WriteLine("Invalid command. Please type a number from 0 to 4.\n");
+                        //     break;
+                }
             }
+        }
+
+        private static void Insert()
+        {
+            string date = GetDateInput();
+            int quantity = GetNumberInput("Please insert number of glasses or other measure of your choice (no decimals allowed)\n\n");
+
+            using (var connection = new SqliteConnection(connectionString))
+            {
+                connection.Open();
+                var tableCmd = connection.CreateCommand();
+                tableCmd.CommandText = $"INSERT INTO drinking_water(Data, Quantity) VALUES ('{date}', {quantity})";
+
+                tableCmd.ExecuteNonQuery();
+                connection.Close();
+            }
+        }
+
+        internal static string GetDateInput()
+        {
+            Console.WriteLine("\n\nPlease insert the date: (Format: dd-mm-yy). Type 0 to return to the main menu.");
+
+            string dateInput = Console.ReadLine();
+
+            if (dateInput == "0") GetUserInput();
+
+            return dateInput;
+        }
+
+        internal static int GetNumberInput(string message)
+        {
+            Console.WriteLine(message);
+            string numberInput = Console.ReadLine();
+            if (numberInput == "0") GetUserInput();
+            int finalInput = Convert.ToInt32(numberInput);
+            return finalInput;
         }
     }
 }
